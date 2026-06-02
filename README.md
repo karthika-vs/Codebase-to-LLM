@@ -26,3 +26,13 @@ The Indexer traverses the graph and generates a condensed Markdown or JSON manif
 
 4. Modern Delivery: Model Context Protocol (MCP)
 As of 2026, the modern way to expose this map to the LLM is via the Model Context Protocol (MCP). Instead of injecting a massive text map directly into the initial prompt, your indexer runs as an MCP Server. The LLM acts as the MCP Client, dynamically querying the Indexer for specific sub-graphs or file summaries exactly when it needs them, drastically reducing token consumption and API costs.
+
+
+##2. The LLM Summarization Fallback (The "Slow Path")
+If heuristics fail (or if the file is a complex custom configuration, like a massive YAML or XML file), the Indexer uses AI to do what the AST couldn't.
+
+The Process: The backend sends the raw file to a fast, cheap LLM (like Gemini 1.5 Flash or Claude 3 Haiku).
+
+The Prompt: "Read this unformatted file. Summarize its purpose in one sentence and list any other files, databases, or services it references."
+
+Integration: The AI-generated summary is injected directly into the Repo Map alongside the AST-generated summaries of the other files. It is slightly more expensive, but it ensures custom DSLs are accurately mapped.
